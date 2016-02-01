@@ -9,8 +9,10 @@ string[] layers
 # in order for a cell of the grid map to be valid.
 string[] basic_layers
 
-# Grid map data.
+# Data from a grid_map::GridMap
 std_msgs/Float32MultiArray[] data
+# OR costs from a cost_map::CostMap
+std_msgs/ByteMultiArray[] costs
 
 # Row start index (default 0).
 uint16 outer_start_index
