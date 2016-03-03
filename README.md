@@ -53,7 +53,7 @@ in Robot Operating System (ROS) – The Complete Reference (Volume 1), A. Koubaa
 
 To install all packages from the grid map library as Debian packages use
 
-    sudo apt-get install ros-indigo-grid-map*
+    sudo apt-get install ros-indigo-grid-map
     
 ### Building from Source
 
@@ -82,8 +82,9 @@ To maximize performance, make sure to build in *Release* mode. You can specify t
 
 This repository consists of following packages:
 
+* ***grid_map*** is the meta-package for the grid map library.
 * ***grid_map_core*** implements the algorithms of the grid map library. It provides the `GridMap` class and several helper classes such as the iterators. This package is implemented without [ROS] dependencies.
-* ***grid_map*** is the main package for [ROS] dependent projects using the grid map library. It provides the interfaces to convert the base classes to several [ROS] message types.
+* ***grid_map_ros*** is the main package for [ROS] dependent projects using the grid map library. It provides the interfaces to convert the base classes to several [ROS] message types.
 * ***grid_map_msgs*** holds the [ROS] message and service definitions around the [grid_map_msg/GridMap] message type.
 * ***grid_map_visualization*** contains a node written to convert GridMap messages to other [ROS] message types for visualization in [RViz]. The visualization parameters are configurable through [ROS] parameters.
 * ***grid_map_filters*** builds on the ROS [filters](http://wiki.ros.org/filters) package to process grid maps as a sequence of filters. 
@@ -94,14 +95,19 @@ This repository consists of following packages:
 
 Run the unit tests with
 
-    catkin_make run_tests_grid_map_core run_tests_grid_map
+    catkin_make run_tests_grid_map_core run_tests_grid_map_ros
+
+or
+
+    catkin build grid_map --no-deps --verbose --catkin-make-args run_tests
     
+if you are using [catkin tools](http://catkin-tools.readthedocs.org/).
 
 ## Usage
 
 ### Demonstrations
 
-The *grid_map_demos* package contains several demonstration nodes. Use this code to verify your installation of the grid map packages and to get you started with own usage of the library.
+The *grid_map_demos* package contains several demonstration nodes. Use this code to verify your installation of the grid map packages and to get you started with your own usage of the library.
 
 * *[simple_demo](grid_map_demos/src/simple_demo_node.cpp)* demonstrates a simple example for using the grid map library. This ROS node creates a grid map, adds data to it, and publishes it. To see the result in RViz, execute the command
 
@@ -133,8 +139,10 @@ The *grid_map_demos* package contains several demonstration nodes. Use this code
 The grid map library contains various iterators for convenience.
 
 Grid map | Submap | Circle | Line | Polygon
---- | --- | --- | --- | ---
+:---: | :---: | :---: | :---: | :---:
 [![Grid map iterator](grid_map_core/doc/iterators/grid_map_iterator_preview.gif)](grid_map_core/doc/iterators/grid_map_iterator.gif) | [![Submap iterator](grid_map_core/doc/iterators/submap_iterator_preview.gif)](grid_map_core/doc/iterators/submap_iterator.gif) | [![Circle iterator](grid_map_core/doc/iterators/circle_iterator_preview.gif)](grid_map_core/doc/iterators/circle_iterator.gif) | [![Line iterator](grid_map_core/doc/iterators/line_iterator_preview.gif)](grid_map_core/doc/iterators/line_iterator.gif) | [![Polygon iterator](grid_map_core/doc/iterators/polygon_iterator_preview.gif)](grid_map_core/doc/iterators/polygon_iterator.gif)
+__Ellipse__ | __Spiral__
+[![Ellipse iterator](grid_map_core/doc/iterators/ellipse_iterator_preview.gif)](grid_map_core/doc/iterators/ellipse_iterator.gif) | [![Spiral iterator](grid_map_core/doc/iterators/spiral_iterator_preview.gif)](grid_map_core/doc/iterators/spiral_iterator.gif)
 
 Using the iterator in a `for` loop is common. For example, iterate over the entire grid map with the `GridMapIterator` with
 
@@ -144,6 +152,15 @@ Using the iterator in a `for` loop is common. For example, iterate over the enti
 
 The other grid map iterators follow the same form. You can find more examples on how to use the different iterators in the *[iterators_demo](grid_map_demos/src/IteratorsDemo.cpp)* node.
 
+### Changing the Position of the Map
+
+There are two different methods to change the position of the map:
+* `setPosition(...)`: Changes the position of the map without changing data stored in the map. This changes the corresponce between the data and the map frame.
+* `move(...)`: Relocates the grid map such that the corresponce between data and the map frame does not change. Data in the overlapping region before and after the position change remains stored. Data that falls outside of the map at its new position is discarded. Cells that cover previously unknown regions are emptied (set to nan). The data storage is implemented as two-dimensional circular buffer to minimize computational effort.
+
+`setPosition(...)` | `move(...)`
+:---: | :---:
+![Grid map iterator](grid_map_core/doc/setposition_method.gif) | ![Submap iterator](grid_map_core/doc/move_method.gif)| 
 
 ## Nodes
 
